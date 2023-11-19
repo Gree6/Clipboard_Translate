@@ -13,5 +13,5 @@ change  response = (decoded_line + ']') to change  response = (decoded_line)
 
 ## Requirements
 six
-google_trans_new
+google_trans_new 
 requests
