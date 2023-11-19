@@ -1,0 +1,3 @@
+requests
+six
+google_trans_new
