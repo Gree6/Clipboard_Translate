@@ -10,3 +10,8 @@ Grab from clipboard/file, translate and display and save it
 ### Bugs
 Bug in google_trans_new.py line 151
 change  response = (decoded_line + ']') to change  response = (decoded_line)
+
+## Requirements
+six
+google_trans_new
+requests
