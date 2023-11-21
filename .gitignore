@@ -24,3 +24,5 @@ setup.py
 .vscode/settings.json
 .vscode/tasks.json
 .vscode/
+input.txt
+output.txt
