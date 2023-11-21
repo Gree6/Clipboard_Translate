@@ -24,7 +24,6 @@ if __name__ == "__main__":
     print(languages)
 
     format = "%(asctime)s: %(message)s"
-
     logging.basicConfig(format=format, level=logging.INFO, datefmt="%H:%M:%S")
 
 
@@ -70,7 +69,7 @@ def output_text(text):
 
 def save_translation(translated_text):
     # trunc's the file to write
-    f = open(output_file_path, "w")
+    f = open(output_file_path, "w", encoding="utf-8")
     f.write(translated_text)
 
 
@@ -92,7 +91,7 @@ def check_file_changes():
         try:
             current_clipboard_contents = tk.Tk().clipboard_get()
         except:
-            logging.info("Thread %s: Clipboard get failure", 1)
+            #logging.info("Thread %s: Clipboard get failure", 1)
             current_clipboard_contents = ""
 
         # Compare with the initial modification time
