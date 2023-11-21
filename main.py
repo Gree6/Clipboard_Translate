@@ -87,7 +87,8 @@ def save_translation(translated_text):
 def check_file_changes():
     # Get the initial modification time
     last_modified_time = os.path.getmtime(input_file_path)
-    prev_clipboard_contents = tk.Tk().clipboard_get()
+
+    prev_clipboard_contents = ''
     logging.info("Thread %s: starting", 1)
 
 
@@ -98,7 +99,11 @@ def check_file_changes():
 
         # Check the current modification time
         current_modified_time = os.path.getmtime(input_file_path)
-        current_clipboard_contents = tk.Tk().clipboard_get()
+        try:
+            current_clipboard_contents = tk.Tk().clipboard_get()
+        except:
+            current_clipboard_contents = ''
+    
         # Compare with the initial modification time
         if (current_modified_time != last_modified_time):
             logging.info("Thread %s: Detected File Change", 1)
@@ -106,7 +111,7 @@ def check_file_changes():
             time.sleep(1)
             logging.info("Thread %s: Ready to Translate", 1)
             read_text()
-        elif (prev_clipboard_contents != current_clipboard_contents):
+        elif (prev_clipboard_contents != current_clipboard_contents) and (current_clipboard_contents != ''):
             logging.info("Thread %s: Detected Clipboard Change", 1)
             prev_clipboard_contents = current_clipboard_contents
 
