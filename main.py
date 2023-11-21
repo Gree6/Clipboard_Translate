@@ -40,7 +40,7 @@ def on_batch_folder_input_clicked(event):
 
 
 def on_batch_folder_output_clicked(event):
-    pass
+    logging.info("print")
 
 
 def read_text():
@@ -167,15 +167,15 @@ dropdown.grid(row=3, column=1, columnspan=1, pady=10)
 folder_label = tk.Label(root, text="Batch \nTranslation", justify="left")
 folder_label.grid(row=4, column=0, pady=10, padx=10, sticky="w")
 
-batch_folder_input = tk.Entry(root, insertontime=0)
+batch_folder_input = tk.Entry(root, state= tk.DISABLED)
 batch_folder_input.insert(0, "set input dir")
+batch_folder_input.bind("<Button-1>", func = on_batch_folder_input_clicked)
 batch_folder_input.grid(row=4, column=1, pady=10, padx=10, sticky="w")
-batch_folder_input.bind("<ButtonPress-1>", on_batch_folder_input_clicked)
 
-batch_folder_output = tk.Entry(root, insertontime=0)
+batch_folder_output = tk.Entry(root, state= tk.DISABLED)
 batch_folder_output.insert(0, "set output dir")
+batch_folder_output.bind("<Button-1>", func = on_batch_folder_output_clicked)
 batch_folder_output.grid(row=4, column=2, pady=10, padx=10, sticky="w")
-batch_folder_input.bind("<ButtonPress-1>", on_batch_folder_output_clicked)
 
 # filedialog.askdirectory()
 
