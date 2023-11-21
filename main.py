@@ -6,7 +6,7 @@ import google_trans_new as gt
 
 # GUI
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import END, filedialog
 import tkinter.ttk as ttk
 
 root = tk.Tk()
@@ -18,6 +18,9 @@ languages = []
 update_time: float = 0.5
 input_file_path = "input.txt"
 output_file_path = "output.txt"
+
+input_folder_path = ""
+output_folder_path = ""
 
 if __name__ == "__main__":
     for l in languages_original.keys():
@@ -36,34 +39,79 @@ def process_input():
 
 
 def on_batch_folder_input_clicked(event):
-    logging.info("print")
+    logging.info("on_batch_folder_input_clicked")
+    try:
+        batch_folder_input.delete(0, END)
+        input_folder_path = filedialog.askdirectory(
+            initialdir="C:\\",
+            mustexist=True,
+            title="Select your Input Source directory",
+        )
+        batch_folder_input.insert(0, input_folder_path)
+        logging.info(input_folder_path)
+    except:
+        logging.exception("Folder Exception")
+        batch_folder_input.insert(0, "")
 
 
 def on_batch_folder_output_clicked(event):
-    logging.info("print")
+    logging.info("on_batch_folder_output_clicked")
+    try:
+        batch_folder_output.delete(0, END)
+        output_folder_path = filedialog.askdirectory(
+            initialdir="C:\\",
+            mustexist=True,
+            title="Select your Output Source directory",
+        )
+        batch_folder_output.insert(0, output_folder_path)
+        logging.info(output_folder_path)
+    except:
+        logging.exception("Folder Exception")
+        batch_folder_output.insert(0, "")
 
 
-def read_text():
-    f = open(input_file_path, "r")
+def read_text(input_file=input_file_path):
+    f = open(input_file, "r")
     # print("length of file:",len(f.read()))
     text = f.read()
     translate_text(text)
 
 
-def translate_text(text):
+def translate_text(text) -> str:
     input_text(text)
     translator = gt.google_translator(url_suffix="com")  #  .Translator()
-
+    translation = ""
     try:
         # Translate the text to the target language
         translation = translator.translate(
             text, lang_tgt=list(languages_original)[dropdown.current()]
         )
         output_text(translation)
-        save_translation(translation)
+        # save_translation(translation)
         logging.info("Thread %s: Finished Translation", 1)
     except Exception as e:
-        print(f"Translation error: {e}")
+        logging.exception("Translation Error {e}")
+    return translation
+
+
+def batch_translate():
+    logging.info("FUNC: Batch Translate")
+    if not (os.path.exists(input_folder_path) and os.path.exists(output_folder_path)):
+        logging.info("Paths don't exist")
+        logging.info(input_folder_path)
+        logging.info(output_folder_path)
+        return
+    else:
+        logging.info("Batch Translate")
+
+    try:
+        txts = find_txt_files(input_folder_path)
+        for t in txts:
+            read_text(t)
+            logging.info("Batch Translate: " + t)
+    except:
+        logging.info("Failure to Batch Translate")
+        pass
 
 
 def input_text(text):
@@ -122,6 +170,16 @@ def check_file_changes():
             logging.info("Thread %s: Ready to Translate", 1)
 
 
+def find_txt_files(folder_path):
+    txt_files = []
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if file.endswith(".txt"):
+                file_path = os.path.join(root, file)
+                txt_files.append(file_path)
+    return txt_files
+
+
 def on_closing():
     open(input_file_path, "w")
     open(output_file_path, "w")
@@ -151,6 +209,11 @@ output_textbox.grid(row=1, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W 
 process_button = tk.Button(root, text="Process Input", command=process_input)
 process_button.grid(row=2, column=0, columnspan=2, pady=5)
 
+batch_translate_button = tk.Button(
+    root, text="Batch Translate", command=batch_translate
+)
+batch_translate_button.grid(row=2, column=1, columnspan=2, pady=5)
+
 label = tk.Label(root, text="Language", justify="left")
 label.grid(
     row=3, column=0, columnspan=1, pady=10, padx=10, sticky="w"
@@ -159,22 +222,22 @@ label.grid(
 selected_option = tk.StringVar()
 
 # Create the dropdown menu
-dropdown = ttk.Combobox(root, textvariable=selected_option)
+dropdown = ttk.Combobox(root, textvariable=selected_option, justify="left")
 dropdown["values"] = languages
 dropdown.set(languages[0])
-dropdown.grid(row=3, column=1, columnspan=1, pady=10)
+dropdown.grid(row=3, column=1, columnspan=1, pady=10, padx=10, sticky="w")
 
 folder_label = tk.Label(root, text="Batch \nTranslation", justify="left")
 folder_label.grid(row=4, column=0, pady=10, padx=10, sticky="w")
 
-batch_folder_input = tk.Entry(root, state= tk.DISABLED)
+batch_folder_input = tk.Entry(root)
 batch_folder_input.insert(0, "set input dir")
-batch_folder_input.bind("<Button-1>", func = on_batch_folder_input_clicked)
+batch_folder_input.bind("<Button-1>", func=on_batch_folder_input_clicked)
 batch_folder_input.grid(row=4, column=1, pady=10, padx=10, sticky="w")
 
-batch_folder_output = tk.Entry(root, state= tk.DISABLED)
+batch_folder_output = tk.Entry(root)
 batch_folder_output.insert(0, "set output dir")
-batch_folder_output.bind("<Button-1>", func = on_batch_folder_output_clicked)
+batch_folder_output.bind("<Button-1>", func=on_batch_folder_output_clicked)
 batch_folder_output.grid(row=4, column=2, pady=10, padx=10, sticky="w")
 
 # filedialog.askdirectory()
