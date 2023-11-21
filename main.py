@@ -7,9 +7,6 @@ update loop
 translate software
 
 
-
-
-
  """
 
 import os
@@ -102,6 +99,7 @@ def check_file_changes():
         try:
             current_clipboard_contents = tk.Tk().clipboard_get()
         except:
+            logging.info("Thread %s: Clipboard get failure", 1)
             current_clipboard_contents = ''
     
         # Compare with the initial modification time
@@ -111,7 +109,7 @@ def check_file_changes():
             time.sleep(1)
             logging.info("Thread %s: Ready to Translate", 1)
             read_text()
-        elif (prev_clipboard_contents != current_clipboard_contents) and (current_clipboard_contents != ''):
+        elif (prev_clipboard_contents != current_clipboard_contents) and (len(current_clipboard_contents)>=1):
             logging.info("Thread %s: Detected Clipboard Change", 1)
             prev_clipboard_contents = current_clipboard_contents
 
