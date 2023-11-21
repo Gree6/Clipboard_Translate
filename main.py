@@ -1,13 +1,3 @@
-""" 
-
-gui
-file management
-update loop
-translate software
-
-
- """
-
 import os
 import logging
 import threading
