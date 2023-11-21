@@ -6,6 +6,7 @@ import google_trans_new as gt
 
 # GUI
 import tkinter as tk
+from tkinter import filedialog
 import tkinter.ttk as ttk
 
 root = tk.Tk()
@@ -32,6 +33,14 @@ def process_input():
     input_text = input_textbox.get("1.0", "end-1c")  # Get the input text
 
     translate_text(input_text)
+
+
+def on_batch_folder_input_clicked(event):
+    logging.info("print")
+
+
+def on_batch_folder_output_clicked(event):
+    pass
 
 
 def read_text():
@@ -91,7 +100,7 @@ def check_file_changes():
         try:
             current_clipboard_contents = tk.Tk().clipboard_get()
         except:
-            #logging.info("Thread %s: Clipboard get failure", 1)
+            # logging.info("Thread %s: Clipboard get failure", 1)
             current_clipboard_contents = ""
 
         # Compare with the initial modification time
@@ -120,8 +129,6 @@ def on_closing():
     root.destroy()
 
 
-# Replace 'input.txt' with the actual file path you want to monitor
-
 # housekeeping
 root.title("ClipBoard Translation")
 root.protocol("WM_DELETE_WINDOW", on_closing)
@@ -129,24 +136,24 @@ root.protocol("WM_DELETE_WINDOW", on_closing)
 open("input.txt", "w")
 open("output.txt", "w")
 
-input_label = tk.Label(root, text="Input")
-input_label.grid(row=0, column=0, padx=10, pady=5)
+input_label = tk.Label(root, text="Input", justify="left")
+input_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
 input_textbox = tk.Text(root, height=5, width=40)
-input_textbox.grid(row=0, column=1, padx=10, pady=5)
+input_textbox.grid(row=0, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E)
 
-output_label = tk.Label(root, text="Output")
-output_label.grid(row=1, column=0, padx=10, pady=5)
+output_label = tk.Label(root, text="Output", justify="left")
+output_label.grid(row=1, column=0, padx=10, pady=5, sticky="w")
 
 output_textbox = tk.Text(root, height=5, width=40)
-output_textbox.grid(row=1, column=1, padx=10, pady=5)
+output_textbox.grid(row=1, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E)
 
 process_button = tk.Button(root, text="Process Input", command=process_input)
-process_button.grid(row=2, column=0, columnspan=2, pady=10)
+process_button.grid(row=2, column=0, columnspan=2, pady=5)
 
-label = tk.Label(root, text="Language")
+label = tk.Label(root, text="Language", justify="left")
 label.grid(
-    row=3, column=0, columnspan=1, pady=10
+    row=3, column=0, columnspan=1, pady=10, padx=10, sticky="w"
 )  # Add padding to separate the label from other elements
 
 selected_option = tk.StringVar()
@@ -155,9 +162,22 @@ selected_option = tk.StringVar()
 dropdown = ttk.Combobox(root, textvariable=selected_option)
 dropdown["values"] = languages
 dropdown.set(languages[0])
-
-# dropdown['values' = languages]
 dropdown.grid(row=3, column=1, columnspan=1, pady=10)
+
+folder_label = tk.Label(root, text="Batch \nTranslation", justify="left")
+folder_label.grid(row=4, column=0, pady=10, padx=10, sticky="w")
+
+batch_folder_input = tk.Entry(root, insertontime=0)
+batch_folder_input.insert(0, "set input dir")
+batch_folder_input.grid(row=4, column=1, pady=10, padx=10, sticky="w")
+batch_folder_input.bind("<ButtonPress-1>", on_batch_folder_input_clicked)
+
+batch_folder_output = tk.Entry(root, insertontime=0)
+batch_folder_output.insert(0, "set output dir")
+batch_folder_output.grid(row=4, column=2, pady=10, padx=10, sticky="w")
+batch_folder_input.bind("<ButtonPress-1>", on_batch_folder_output_clicked)
+
+# filedialog.askdirectory()
 
 x = threading.Thread(target=check_file_changes, daemon=True)
 x.start()
