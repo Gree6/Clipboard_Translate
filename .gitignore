@@ -21,3 +21,4 @@ dist/input.txt
 dist/output.txt
 main.spec
 setup.py
+.vscode/settings.json
