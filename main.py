@@ -26,65 +26,10 @@ input_folder_path = ""
 output_folder_path = ""
 
 
-
 # Processing
-
-# Input Output
-
-
 def start_threading():
     x = threading.Thread(target=check_file_changes, daemon=True)
     x.start()
-
-
-def process_input():
-    # Your processing logic goes here
-    input_text = input_textbox.get("1.0", "end-1c")  # Get the input text
-
-    translate_text(input_text)
-
-
-def on_batch_folder_input_clicked(event):
-    global input_folder_path
-    logging.info("on_batch_folder_input_clicked")
-    try:
-        batch_folder_input.delete(0, END)
-        input_folder_path = filedialog.askdirectory(
-            parent=root,
-            initialdir="C:\\",
-            mustexist=True,
-            title="Select your Input Source directory",
-        )
-        batch_folder_input.insert(0, input_folder_path)
-        logging.info(input_folder_path)
-    except:
-        logging.exception("Folder Exception")
-        batch_folder_input.insert(0, "")
-
-
-def on_batch_folder_output_clicked(event):
-    global output_folder_path
-    logging.info("on_batch_folder_output_clicked")
-    try:
-        batch_folder_output.delete(0, END)
-        output_folder_path = filedialog.askdirectory(
-            initialdir="C:\\",
-            mustexist=True,
-            title="Select your Output Source directory",
-        )
-        batch_folder_output.insert(0, output_folder_path)
-        logging.info(output_folder_path)
-    except:
-        logging.exception("Folder Exception")
-        batch_folder_output.insert(0, "")
-
-
-def read_text(input_file=input_file_path) -> str:
-    f = open(input_file, "r")
-    # print("length of file:",len(f.read()))
-    text = f.read()
-    logging.info("text in file\n" + text)
-    return text
 
 
 def translate_text(text: str) -> str:
@@ -104,6 +49,22 @@ def translate_text(text: str) -> str:
     return translation
 
 
+def find_txt_files(folder_path):
+    """Returns array of txt file paths in folder"""
+    txt_files = []
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if file.endswith(".txt"):
+                file_path = os.path.join(root, file)
+                txt_files.append(file_path)
+    return txt_files
+
+
+def on_closing():
+    open(input_file_path, "w")
+    open(output_file_path, "w")
+
+    root.destroy()
 
 
 def batch_translate():
@@ -133,22 +94,6 @@ def batch_translate():
 
     stop_thread = False
     start_threading()
-
-
-def input_text(text):
-    input_textbox.delete("1.0", "end")
-    input_textbox.insert("1.0", text)
-
-
-def output_text(text):
-    output_textbox.delete("1.0", "end")  # Clear the output textbox
-    output_textbox.insert("1.0", text)  # Display processed text
-
-
-def save_translation(translated_text, file_path_name=output_file_path):
-    # trunc's the file to write
-    f = open(file_path_name, "w", encoding="utf-8")
-    f.write(translated_text)
 
 
 # daemon thread function
@@ -194,24 +139,72 @@ def check_file_changes():
             logging.info("Thread %s: Ready to Translate", 1)
 
 
-def find_txt_files(folder_path):
-    """Returns array of txt file paths in folder"""
-    txt_files = []
-    for root, dirs, files in os.walk(folder_path):
-        for file in files:
-            if file.endswith(".txt"):
-                file_path = os.path.join(root, file)
-                txt_files.append(file_path)
-    return txt_files
+# Input Output
+def input_text(text):
+    input_textbox.delete("1.0", "end")
+    input_textbox.insert("1.0", text)
 
 
-def on_closing():
-    open(input_file_path, "w")
-    open(output_file_path, "w")
-
-    root.destroy()
+def output_text(text):
+    output_textbox.delete("1.0", "end")  # Clear the output textbox
+    output_textbox.insert("1.0", text)  # Display processed text
 
 
+def read_text(input_file=input_file_path) -> str:
+    f = open(input_file, "r")
+    # print("length of file:",len(f.read()))
+    text = f.read()
+    logging.info("text in file\n" + text)
+    return text
+
+
+def save_translation(translated_text, file_path_name=output_file_path):
+    # trunc's the file to write
+    f = open(file_path_name, "w", encoding="utf-8")
+    f.write(translated_text)
+
+
+# event processing
+def on_batch_folder_input_clicked(event):
+    global input_folder_path
+    logging.info("on_batch_folder_input_clicked")
+    try:
+        batch_folder_input.delete(0, END)
+        input_folder_path = filedialog.askdirectory(
+            parent=root,
+            initialdir="C:\\",
+            mustexist=True,
+            title="Select your Input Source directory",
+        )
+        batch_folder_input.insert(0, input_folder_path)
+        logging.info(input_folder_path)
+    except:
+        logging.exception("Folder Exception")
+        batch_folder_input.insert(0, "")
+
+
+def on_batch_folder_output_clicked(event):
+    global output_folder_path
+    logging.info("on_batch_folder_output_clicked")
+    try:
+        batch_folder_output.delete(0, END)
+        output_folder_path = filedialog.askdirectory(
+            initialdir="C:\\",
+            mustexist=True,
+            title="Select your Output Source directory",
+        )
+        batch_folder_output.insert(0, output_folder_path)
+        logging.info(output_folder_path)
+    except:
+        logging.exception("Folder Exception")
+        batch_folder_output.insert(0, "")
+
+
+def process_input():
+    # Your processing logic goes here
+    input_text = input_textbox.get("1.0", "end-1c")  # Get the input text
+
+    translate_text(input_text)
 
 
 if __name__ == "__main__":
@@ -232,13 +225,17 @@ if __name__ == "__main__":
     input_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
     input_textbox = tk.Text(root, height=5, width=40)
-    input_textbox.grid(row=0, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E)
+    input_textbox.grid(
+        row=0, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E
+    )
 
     output_label = tk.Label(root, text="Output", justify="left")
     output_label.grid(row=1, column=0, padx=10, pady=5, sticky="w")
 
     output_textbox = tk.Text(root, height=5, width=40)
-    output_textbox.grid(row=1, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E)
+    output_textbox.grid(
+        row=1, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E
+    )
 
     process_button = tk.Button(root, text="Translate", command=process_input)
     process_button.grid(row=2, column=1, pady=5)
