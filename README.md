@@ -1,17 +1,19 @@
 # Clipboard_Translate
-Grab from clipboard/file, translate and display and save it
+Features built into the google_trans_new Python package for batch file translation, clipboard translate.
 
-## Flow
-- Auto-Grab whats in your clipboard (update automatically) or txt file
-- Google Translate
-- Save it to a txt file and make it visible in gui
-- Repeats with file and clipboard changes
+![image](https://github.com/Gree6/Clipboard_Translate/assets/94130408/29d64f47-89af-4e67-a63f-9259238fa880)
 
-### Bugs
+
+## Features
+- Auto-Grab whats in your clipboard (update automatically) or txt file (input.txt)
+- Using google_trans_new to access Google Translate
+- Translated txt appear in output text block
+
+### Package Bug
 Bug in google_trans_new.py line 151
 change  response = (decoded_line + ']') to change  response = (decoded_line)
 
-## Requirements
+### Requirements
 six
 google_trans_new 
 requests
