@@ -11,7 +11,6 @@ import tkinter.ttk as ttk
 
 
 root = tk.Tk()
-root.title("ClipBoard Translator")
 
 languages_original = gt.constant.LANGUAGES
 languages = []
@@ -215,6 +214,8 @@ if __name__ == "__main__":
     logging.basicConfig(format=format, level=logging.INFO, datefmt="%H:%M:%S")
 
     # housekeeping
+    root.title("ClipBoard Translator")
+
     root.title("ClipBoard Translation")
     root.protocol("WM_DELETE_WINDOW", on_closing)
     # create new file if none exists
@@ -271,7 +272,6 @@ if __name__ == "__main__":
     batch_folder_output.bind("<Button-1>", func=on_batch_folder_output_clicked)
     batch_folder_output.grid(row=4, column=2, pady=10, padx=10, sticky="w")
 
-
-start_threading()
+    start_threading()
 
 root.mainloop()

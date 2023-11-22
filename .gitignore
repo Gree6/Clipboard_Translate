@@ -32,3 +32,5 @@ build/
 Clipboard Translator.spec
 .gitignore
 tasks.spec
+.vscode
+.venv
