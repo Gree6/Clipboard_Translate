@@ -26,13 +26,6 @@ input_folder_path = ""
 output_folder_path = ""
 
 
-if __name__ == "__main__":
-    for l in languages_original.keys():
-        languages.append(languages_original[l])
-
-    format = "%(asctime)s: %(message)s"
-    logging.basicConfig(format=format, level=logging.INFO, datefmt="%H:%M:%S")
-
 
 # Processing
 
@@ -111,9 +104,6 @@ def translate_text(text: str) -> str:
     return translation
 
 
-def clear_output_folder():
-    logging.exception("not implemented")
-    pass
 
 
 def batch_translate():
@@ -222,64 +212,68 @@ def on_closing():
     root.destroy()
 
 
-# housekeeping
-root.title("ClipBoard Translation")
-root.protocol("WM_DELETE_WINDOW", on_closing)
-# create new file if none exists
-open("input.txt", "w")
-open("output.txt", "w")
 
-input_label = tk.Label(root, text="Input", justify="left")
-input_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
-input_textbox = tk.Text(root, height=5, width=40)
-input_textbox.grid(row=0, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E)
+if __name__ == "__main__":
+    for l in languages_original.keys():
+        languages.append(languages_original[l])
 
-output_label = tk.Label(root, text="Output", justify="left")
-output_label.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+    format = "%(asctime)s: %(message)s"
+    logging.basicConfig(format=format, level=logging.INFO, datefmt="%H:%M:%S")
 
-output_textbox = tk.Text(root, height=5, width=40)
-output_textbox.grid(row=1, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E)
+    # housekeeping
+    root.title("ClipBoard Translation")
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+    # create new file if none exists
+    open("input.txt", "w")
+    open("output.txt", "w")
 
-process_button = tk.Button(root, text="Process Input", command=process_input)
-process_button.grid(row=2, column=0, pady=5)
+    input_label = tk.Label(root, text="Input", justify="left")
+    input_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
-batch_translate_button = tk.Button(
-    root, text="Batch Translate", command=batch_translate
-)
-batch_translate_button.grid(row=2, column=1, pady=5, padx=5)
+    input_textbox = tk.Text(root, height=5, width=40)
+    input_textbox.grid(row=0, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E)
 
-clear_output_folder_button = tk.Button(
-    root, text="Clear output folder", command=clear_output_folder
-)
-clear_output_folder_button.grid(row=2, column=2, pady=5)
-label = tk.Label(root, text="Language", justify="left")
-label.grid(
-    row=3, column=0, columnspan=1, pady=10, padx=10, sticky="w"
-)  # Add padding to separate the label from other elements
+    output_label = tk.Label(root, text="Output", justify="left")
+    output_label.grid(row=1, column=0, padx=10, pady=5, sticky="w")
 
-selected_option = tk.StringVar()
+    output_textbox = tk.Text(root, height=5, width=40)
+    output_textbox.grid(row=1, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E)
 
-# Create the dropdown menu
-dropdown = ttk.Combobox(root, textvariable=selected_option, justify="left")
-dropdown["values"] = languages
-dropdown.set(languages[0])
-dropdown.grid(row=3, column=1, columnspan=1, pady=10, padx=10, sticky="w")
+    process_button = tk.Button(root, text="Translate", command=process_input)
+    process_button.grid(row=2, column=1, pady=5)
 
-folder_label = tk.Label(root, text="Batch \nTranslation", justify="left")
-folder_label.grid(row=4, column=0, pady=10, padx=10, sticky="w")
+    batch_translate_button = tk.Button(
+        root, text="Batch Translate", command=batch_translate
+    )
+    batch_translate_button.grid(row=2, column=2, pady=5, padx=5)
 
-batch_folder_input = tk.Entry(root)
-batch_folder_input.insert(0, "set input dir")
-batch_folder_input.bind("<Button-1>", func=on_batch_folder_input_clicked)
-batch_folder_input.grid(row=4, column=1, pady=10, padx=10, sticky="w")
+    label = tk.Label(root, text="Language", justify="left")
+    label.grid(
+        row=3, column=0, columnspan=1, pady=10, padx=10, sticky="w"
+    )  # Add padding to separate the label from other elements
 
-batch_folder_output = tk.Entry(root)
-batch_folder_output.insert(0, "set output dir")
-batch_folder_output.bind("<Button-1>", func=on_batch_folder_output_clicked)
-batch_folder_output.grid(row=4, column=2, pady=10, padx=10, sticky="w")
+    selected_option = tk.StringVar()
 
-# filedialog.askdirectory()
+    # Create the dropdown menu
+    dropdown = ttk.Combobox(root, textvariable=selected_option, justify="left")
+    dropdown["values"] = languages
+    dropdown.set(languages[0])
+    dropdown.grid(row=3, column=1, columnspan=1, pady=10, padx=10, sticky="w")
+
+    folder_label = tk.Label(root, text="Batch \nTranslation", justify="left")
+    folder_label.grid(row=4, column=0, pady=10, padx=10, sticky="w")
+
+    batch_folder_input = tk.Entry(root)
+    batch_folder_input.insert(0, "set input dir")
+    batch_folder_input.bind("<Button-1>", func=on_batch_folder_input_clicked)
+    batch_folder_input.grid(row=4, column=1, pady=10, padx=10, sticky="w")
+
+    batch_folder_output = tk.Entry(root)
+    batch_folder_output.insert(0, "set output dir")
+    batch_folder_output.bind("<Button-1>", func=on_batch_folder_output_clicked)
+    batch_folder_output.grid(row=4, column=2, pady=10, padx=10, sticky="w")
+
 
 start_threading()
 
