@@ -9,26 +9,39 @@ import tkinter as tk
 from tkinter import END, filedialog
 import tkinter.ttk as ttk
 
+
 root = tk.Tk()
 root.title("ClipBoard Translator")
+
 languages_original = gt.constant.LANGUAGES
 languages = []
+
+stop_thread = False
 
 # user options
 update_time: float = 0.5
 input_file_path = "input.txt"
 output_file_path = "output.txt"
-
 input_folder_path = ""
 output_folder_path = ""
+
 
 if __name__ == "__main__":
     for l in languages_original.keys():
         languages.append(languages_original[l])
-    print(languages)
 
     format = "%(asctime)s: %(message)s"
     logging.basicConfig(format=format, level=logging.INFO, datefmt="%H:%M:%S")
+
+
+# Processing
+
+# Input Output
+
+
+def start_threading():
+    x = threading.Thread(target=check_file_changes, daemon=True)
+    x.start()
 
 
 def process_input():
@@ -39,10 +52,12 @@ def process_input():
 
 
 def on_batch_folder_input_clicked(event):
+    global input_folder_path
     logging.info("on_batch_folder_input_clicked")
     try:
         batch_folder_input.delete(0, END)
         input_folder_path = filedialog.askdirectory(
+            parent=root,
             initialdir="C:\\",
             mustexist=True,
             title="Select your Input Source directory",
@@ -55,6 +70,7 @@ def on_batch_folder_input_clicked(event):
 
 
 def on_batch_folder_output_clicked(event):
+    global output_folder_path
     logging.info("on_batch_folder_output_clicked")
     try:
         batch_folder_output.delete(0, END)
@@ -70,14 +86,15 @@ def on_batch_folder_output_clicked(event):
         batch_folder_output.insert(0, "")
 
 
-def read_text(input_file=input_file_path):
+def read_text(input_file=input_file_path) -> str:
     f = open(input_file, "r")
     # print("length of file:",len(f.read()))
     text = f.read()
-    translate_text(text)
+    logging.info("text in file\n" + text)
+    return text
 
 
-def translate_text(text) -> str:
+def translate_text(text: str) -> str:
     input_text(text)
     translator = gt.google_translator(url_suffix="com")  #  .Translator()
     translation = ""
@@ -94,24 +111,38 @@ def translate_text(text) -> str:
     return translation
 
 
+def clear_output_folder():
+    logging.exception("not implemented")
+    pass
+
+
 def batch_translate():
+    global input_folder_path
+    global output_folder_path
+    global stop_thread
     logging.info("FUNC: Batch Translate")
+    stop_thread = True
     if not (os.path.exists(input_folder_path) and os.path.exists(output_folder_path)):
         logging.info("Paths don't exist")
         logging.info(input_folder_path)
         logging.info(output_folder_path)
+        stop_thread = False
+        start_threading()
         return
-    else:
-        logging.info("Batch Translate")
-
     try:
         txts = find_txt_files(input_folder_path)
         for t in txts:
-            read_text(t)
-            logging.info("Batch Translate: " + t)
+            # t = filepath
+            save_translation(
+                translate_text(read_text(t)),
+                os.path.join(output_folder_path, os.path.basename(t)),
+            )
     except:
         logging.info("Failure to Batch Translate")
         pass
+
+    stop_thread = False
+    start_threading()
 
 
 def input_text(text):
@@ -124,9 +155,9 @@ def output_text(text):
     output_textbox.insert("1.0", text)  # Display processed text
 
 
-def save_translation(translated_text):
+def save_translation(translated_text, file_path_name=output_file_path):
     # trunc's the file to write
-    f = open(output_file_path, "w", encoding="utf-8")
+    f = open(file_path_name, "w", encoding="utf-8")
     f.write(translated_text)
 
 
@@ -142,7 +173,9 @@ def check_file_changes():
         # Sleep for a short interval
         time.sleep(update_time)
         logging.info("Thread %s: checking for changes", 1)
-
+        if stop_thread:
+            logging.info("Thread %s: Stopped", 1)
+            break
         # Check the current modification time
         current_modified_time = os.path.getmtime(input_file_path)
         try:
@@ -155,9 +188,10 @@ def check_file_changes():
         if current_modified_time != last_modified_time:
             logging.info("Thread %s: Detected File Change", 1)
             last_modified_time = current_modified_time
+            print("new input.txt change: " + read_text())
+            save_translation(translated_text=translate_text(read_text()))
             time.sleep(1)
             logging.info("Thread %s: Ready to Translate", 1)
-            read_text()
         elif (prev_clipboard_contents != current_clipboard_contents) and (
             len(current_clipboard_contents) >= 1
         ):
@@ -171,6 +205,7 @@ def check_file_changes():
 
 
 def find_txt_files(folder_path):
+    """Returns array of txt file paths in folder"""
     txt_files = []
     for root, dirs, files in os.walk(folder_path):
         for file in files:
@@ -207,13 +242,17 @@ output_textbox = tk.Text(root, height=5, width=40)
 output_textbox.grid(row=1, column=1, padx=10, pady=5, columnspan=2, sticky=tk.W + tk.E)
 
 process_button = tk.Button(root, text="Process Input", command=process_input)
-process_button.grid(row=2, column=0, columnspan=2, pady=5)
+process_button.grid(row=2, column=0, pady=5)
 
 batch_translate_button = tk.Button(
     root, text="Batch Translate", command=batch_translate
 )
-batch_translate_button.grid(row=2, column=1, columnspan=2, pady=5)
+batch_translate_button.grid(row=2, column=1, pady=5, padx=5)
 
+clear_output_folder_button = tk.Button(
+    root, text="Clear output folder", command=clear_output_folder
+)
+clear_output_folder_button.grid(row=2, column=2, pady=5)
 label = tk.Label(root, text="Language", justify="left")
 label.grid(
     row=3, column=0, columnspan=1, pady=10, padx=10, sticky="w"
@@ -242,7 +281,6 @@ batch_folder_output.grid(row=4, column=2, pady=10, padx=10, sticky="w")
 
 # filedialog.askdirectory()
 
-x = threading.Thread(target=check_file_changes, daemon=True)
-x.start()
+start_threading()
 
 root.mainloop()

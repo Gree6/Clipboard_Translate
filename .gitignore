@@ -26,3 +26,9 @@ setup.py
 .vscode/
 input.txt
 output.txt
+dist/
+build/
+.spec
+Clipboard Translator.spec
+.gitignore
+tasks.spec
